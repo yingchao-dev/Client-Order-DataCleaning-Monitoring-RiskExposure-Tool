@@ -1,20 +1,30 @@
 Attribute VB_Name = "OrderDataCleaning"
 Option Explicit
+Sub LogQualityIssue(wsQuality As Worksheet, ByRef qualityRow As Long, rowNum As Long, orderIDValue As Variant, problemDesc As String)
+    qualityRow = qualityRow + 1
+    wsQuality.Cells(qualityRow, 1).Value = rowNum
+    wsQuality.Cells(qualityRow, 2).Value = orderIDValue
+    wsQuality.Cells(qualityRow, 3).Value = problemDesc
+End Sub
 
 Function ParsePrice(txt As Variant) As Variant
     If IsEmpty(txt) Or Trim(CStr(txt)) = "" Then
-       ParsePrice = Null
+        ParsePrice = Null
         Exit Function
     End If
+
     Dim cleanTxt As String
     cleanTxt = Trim(CStr(txt))
+
     If cleanTxt = "N/A" Or cleanTxt = "NULL" Or cleanTxt = "-" Or cleanTxt = "#REF!" Or cleanTxt = "???" Or cleanTxt = "###" Then
-       ParsePrice = Null
+        ParsePrice = Null
         Exit Function
     End If
+
     If InStr(cleanTxt, "�") > 0 Then
         cleanTxt = Replace(cleanTxt, "�", "")
     End If
+
     Dim lastComma As Long
     Dim lastDot As Long
     lastComma = InStrRev(cleanTxt, ",")
@@ -30,6 +40,7 @@ Function ParsePrice(txt As Variant) As Variant
     ElseIf lastComma > 0 Then
         cleanTxt = Replace(cleanTxt, ",", ".")
     End If
+
     If cleanTxt <> "" Then
         ParsePrice = Val(cleanTxt)
     Else
@@ -38,11 +49,11 @@ Function ParsePrice(txt As Variant) As Variant
 End Function
 
 Function ParseQuantity(txt As Variant) As Variant
-If IsEmpty(txt) Or Trim(txt) = "" Or Not IsNumeric(txt) Then
-   ParseQuantity = Null
-   Exit Function
-End If
-ParseQuantity = CLng(txt)
+    If IsEmpty(txt) Or Trim(txt) = "" Or Not IsNumeric(txt) Then
+        ParseQuantity = Null
+        Exit Function
+    End If
+    ParseQuantity = CLng(txt)
 End Function
 
 Function ParseTimestamp(txt As Variant) As Variant
@@ -54,97 +65,86 @@ Function ParseTimestamp(txt As Variant) As Variant
 End Function
 
 Function ValidateISINFormat(txt As Variant) As Boolean
-Dim cleaned As String
-If IsEmpty(txt) Or Trim(txt) = "" Then
-   ValidateISINFormat = False
-   Exit Function
-End If
-cleaned = Trim(txt)
-If Len(cleaned) <> 12 Then
-   ValidateISINFormat = False
-   Exit Function
-End If
-If Not (cleaned Like "[A-Z][A-Z][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9]") Then
-    ValidateISINFormat = False
-    Exit Function
-End If
-ValidateISINFormat = True
-End Function
+    Dim cleaned As String
+    If IsEmpty(txt) Or Trim(txt) = "" Then
+        ValidateISINFormat = False
+        Exit Function
+    End If
 
-Function ValidateISINInSecurityMaster(isin As String, secMasterRange As Range) As Boolean
-Dim found As Range
-Set found = secMasterRange.Find(what:=isin, LookAt:=xlWhole)
-If found Is Nothing Then
-   ValidateISINInSecurityMaster = False
-Else
-   ValidateISINInSecurityMaster = True
-End If
+    cleaned = Trim(txt)
+    If Len(cleaned) <> 12 Then
+        ValidateISINFormat = False
+        Exit Function
+    End If
+
+    If Not (cleaned Like "[A-Z][A-Z][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9]") Then
+        ValidateISINFormat = False
+        Exit Function
+    End If
+
+    ValidateISINFormat = True
 End Function
 
 Function ValidateOrderIDFormat(txt As Variant) As Boolean
-Dim cleaned As String
-If IsEmpty(txt) Or Trim(txt) = "" Then
-   ValidateOrderIDFormat = False
-   Exit Function
-End If
-cleaned = Trim(txt)
-If Not (cleaned Like "ORD########") Then
-    ValidateOrderIDFormat = False
-    Exit Function
-End If
-ValidateOrderIDFormat = True
+    Dim cleaned As String
+    If IsEmpty(txt) Or Trim(txt) = "" Then
+        ValidateOrderIDFormat = False
+        Exit Function
+    End If
+
+    cleaned = Trim(txt)
+    If Not (cleaned Like "ORD########") Then
+        ValidateOrderIDFormat = False
+        Exit Function
+    End If
+
+    ValidateOrderIDFormat = True
 End Function
 
 Function ValidateClientIDFormat(txt As Variant) As Boolean
-Dim cleaned As String
-If IsEmpty(txt) Or Trim(txt) = "" Then
-   ValidateClientIDFormat = False
-   Exit Function
-End If
-cleaned = Trim(txt)
-If Not (cleaned Like "[A-Z][A-Z]####") Then
-    ValidateClientIDFormat = False
-    Exit Function
-End If
-ValidateClientIDFormat = True
-End Function
+    Dim cleaned As String
+    If IsEmpty(txt) Or Trim(txt) = "" Then
+        ValidateClientIDFormat = False
+        Exit Function
+    End If
 
-Function ValidateClientIDClientMaster(ClientID As String, clientMasterRange As Range) As Boolean
-Dim found As Range
-Set found = clientMasterRange.Find(what:=ClientID, LookAt:=xlWhole)
-If found Is Nothing Then
-   ValidateClientIDClientMaster = False
-Else
-   ValidateClientIDClientMaster = True
-End If
+    cleaned = Trim(txt)
+    If Not (cleaned Like "[A-Z][A-Z]####") Then
+        ValidateClientIDFormat = False
+        Exit Function
+    End If
+
+    ValidateClientIDFormat = True
 End Function
 
 Function ValidateStatusFormat(txt As Variant) As Boolean
-Dim cleaned As String
-If IsEmpty(txt) Or Trim(txt) = "" Then
-   ValidateStatusFormat = False
-   Exit Function
-End If
-cleaned = UCase(Trim(txt))
-If cleaned = "PENDING" Or cleaned = "PARTIALLY EXECUTED" Or cleaned = "EXECUTED" Or cleaned = "CANCELLED" Or cleaned = "REJECTED" Then
-   ValidateStatusFormat = True
-Else
-   ValidateStatusFormat = False
-End If
+    Dim cleaned As String
+    If IsEmpty(txt) Or Trim(txt) = "" Then
+        ValidateStatusFormat = False
+        Exit Function
+    End If
+
+    cleaned = UCase(Trim(txt))
+    If cleaned = "PENDING" Or cleaned = "PARTIALLY EXECUTED" Or cleaned = "EXECUTED" Or cleaned = "CANCELLED" Or cleaned = "REJECTED" Then
+        ValidateStatusFormat = True
+    Else
+        ValidateStatusFormat = False
+    End If
 End Function
 
 Function ValidateMarketPhaseFormat(txt As Variant) As Boolean
-Dim cleaned As String
-If IsEmpty(txt) Or Trim(txt) = "" Then
-   ValidateMarketPhaseFormat = False
-   Exit Function
-End If
-cleaned = UCase(Trim(txt))
-If cleaned = "CONTINUOUS" Or cleaned = "AUCTION" Or cleaned = "CIRCUIT BREAKER" Then
-   ValidateMarketPhaseFormat = True
-Else
-   ValidateMarketPhaseFormat = False
-End If
+    Dim cleaned As String
+    If IsEmpty(txt) Or Trim(txt) = "" Then
+        ValidateMarketPhaseFormat = False
+        Exit Function
+    End If
+
+    cleaned = UCase(Trim(txt))
+    If cleaned = "CONTINUOUS" Or cleaned = "AUCTION" Or cleaned = "CIRCUIT BREAKER" Then
+        ValidateMarketPhaseFormat = True
+    Else
+        ValidateMarketPhaseFormat = False
+    End If
 End Function
 
 Sub Test()
@@ -163,22 +163,23 @@ Set wsCleaned = Worksheets.Add
 wsCleaned.Name = "Cleaned_Data"
 Sheets("Raw_Client_Orders").Rows(1).Copy Destination:=wsCleaned.Rows(1)
 wsCleaned.Cells(1, 11).Copy
-wsCleaned.Cells(1, 12).PasteSpecial Paste:=xlPasteFormats
+wsCleaned.Range(wsCleaned.Cells(1, 12), wsCleaned.Cells(1, 18)).PasteSpecial Paste:=xlPasteFormats
 Application.CutCopyMode = False
 wsCleaned.Cells(1, 12).Value = "Eligible_For_Price_Check"
+wsCleaned.Cells(1, 13).Value = "Security Name"
+wsCleaned.Cells(1, 14).Value = "Security Type"
+wsCleaned.Cells(1, 15).Value = "Currency"
+wsCleaned.Cells(1, 16).Value = "Client Name"
+wsCleaned.Cells(1, 17).Value = "Client Type"
+wsCleaned.Cells(1, 18).Value = "Region"
 
 wsQuality.Cells(1, 1).Value = "Row"
 wsQuality.Cells(1, 2).Value = "OrderID"
 wsQuality.Cells(1, 3).Value = "Problem"
 
-' 工作表引用
 Dim wsData As Worksheet
 Dim wsSMData As Worksheet
 Dim wsCMData As Worksheet
-
-' 参考表查找范围
-Dim secMasterRange As Range
-Dim cliMasterRange As Range
 
 Set wsData = Worksheets("Raw_Client_Orders")
 Set wsSMData = Worksheets("Security_Master")
@@ -186,19 +187,16 @@ Set wsCMData = Worksheets("Client_Master")
 Set secMasterRange = wsSMData.Range("A:A")
 Set cliMasterRange = wsCMData.Range("A:A")
 
-' 循环控制与计数
 Dim i As Long
 Dim lastRow As Long
 Dim qualityRow As Long
 Dim rowNum As Long
 
-' 字段清洗/解析结果
 Dim parsed As Variant
 Dim parsedLimitPrice As Variant
 Dim parsedExecutionPrice As Variant
 Dim parsedQty As Variant
 
-' 字段格式/存在性校验结果
 Dim isISINValid As Boolean
 Dim isISINFound As Boolean
 Dim isClientIDValid As Boolean
@@ -206,7 +204,6 @@ Dim isClientIDFound As Boolean
 Dim isOrderIDValid As Boolean
 Dim isMarketPhaseValid As Boolean
 
-' 原始值与清洗后的字符串
 Dim orderID As String
 Dim rawISIN As String
 Dim cleanedISIN As String
@@ -215,7 +212,6 @@ Dim rawClientID As String
 Dim cleanedClientID As String
 Dim orderType As String
 
-' 其他工具变量
 Dim dict As Object
 Dim key As Variant
 Dim rowList As String
@@ -225,184 +221,166 @@ Set dict = CreateObject("Scripting.Dictionary")
 qualityRow = 1
 lastRow = wsData.Cells(wsData.Rows.Count, 1).End(xlUp).Row
 
+Dim secDict As Object
+Set secDict = CreateObject("Scripting.Dictionary")
+
+Dim lastSecRow As Long
+lastSecRow = wsSMData.Cells(wsSMData.Rows.Count, 1).End(xlUp).Row
+
+Dim j As Long
+For j = 2 To lastSecRow
+    secDict(wsSMData.Cells(j, 1).Value) = Array(wsSMData.Cells(j, 2).Value, wsSMData.Cells(j, 3).Value, wsSMData.Cells(j, 4).Value)
+Next j
+
+Dim cliDict As Object
+Set cliDict = CreateObject("Scripting.Dictionary")
+
+Dim lastCliRow As Long
+lastCliRow = wsCMData.Cells(wsCMData.Rows.Count, 1).End(xlUp).Row
+
+Dim k As Long
+For k = 2 To lastCliRow
+    cliDict(wsCMData.Cells(k, 1).Value) = Array(wsCMData.Cells(k, 2).Value, wsCMData.Cells(k, 3).Value, wsCMData.Cells(k, 4).Value)
+Next k
+
 For i = 2 To lastRow
 
-orderID = wsData.Cells(i, 1).Value
-parsed = ParseTimestamp(wsData.Cells(i, 3).Value)
-parsedLimitPrice = ParsePrice(wsData.Cells(i, 7).Value)
-parsedExecutionPrice = ParsePrice(wsData.Cells(i, 11).Value)
-parsedQty = ParseQuantity(wsData.Cells(i, 4).Value)
-isMarketPhaseValid = ValidateMarketPhaseFormat(wsData.Cells(i, 10).Value)
-isOrderIDValid = ValidateOrderIDFormat(wsData.Cells(i, 1).Value)
+    orderID = wsData.Cells(i, 1).Value
+    parsed = ParseTimestamp(wsData.Cells(i, 3).Value)
+    parsedLimitPrice = ParsePrice(wsData.Cells(i, 7).Value)
+    parsedExecutionPrice = ParsePrice(wsData.Cells(i, 11).Value)
+    parsedQty = ParseQuantity(wsData.Cells(i, 4).Value)
+    isMarketPhaseValid = ValidateMarketPhaseFormat(wsData.Cells(i, 10).Value)
+    isOrderIDValid = ValidateOrderIDFormat(wsData.Cells(i, 1).Value)
 
-rawISIN = wsData.Cells(i, 2).Value
-cleanedISIN = Trim(rawISIN)
-rawStatus = wsData.Cells(i, 8).Value
-rawClientID = wsData.Cells(i, 9).Value
-cleanedClientID = Trim(rawClientID)
+    rawISIN = wsData.Cells(i, 2).Value
+    cleanedISIN = Trim(rawISIN)
+    rawStatus = wsData.Cells(i, 8).Value
+    rawClientID = wsData.Cells(i, 9).Value
+    cleanedClientID = Trim(rawClientID)
 
-isISINValid = ValidateISINFormat(rawISIN)
+    isISINValid = ValidateISINFormat(rawISIN)
 If Not isISINValid Then
-   qualityRow = qualityRow + 1
-    wsQuality.Cells(qualityRow, 1).Value = i
-    wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-    wsQuality.Cells(qualityRow, 3).Value = "ISIN is empty or invalid ISIN format"
+    LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "ISIN is empty or invalid ISIN format"
 Else
-    isISINFound = ValidateISINInSecurityMaster(cleanedISIN, secMasterRange)
+    isISINFound = secDict.Exists(cleanedISIN)
     If Not isISINFound Then
-       qualityRow = qualityRow + 1
-       wsQuality.Cells(qualityRow, 1).Value = i
-       wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-       wsQuality.Cells(qualityRow, 3).Value = "ISIN not found in Security_Master"
+        LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "ISIN not found in Security_Master"
     Else
-       wsCleaned.Cells(i, 2).Value = cleanedISIN
+        wsCleaned.Cells(i, 2).Value = cleanedISIN
+        wsCleaned.Cells(i, 13).Value = secDict(cleanedISIN)(0)
+        wsCleaned.Cells(i, 14).Value = secDict(cleanedISIN)(1)
+        wsCleaned.Cells(i, 15).Value = secDict(cleanedISIN)(2)
     End If
 End If
 
-isClientIDValid = ValidateClientIDFormat(rawClientID)
+    isClientIDValid = ValidateClientIDFormat(rawClientID)
 If Not isClientIDValid Then
-   qualityRow = qualityRow + 1
-    wsQuality.Cells(qualityRow, 1).Value = i
-    wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-    wsQuality.Cells(qualityRow, 3).Value = "ClientID is empty or invalid ClientID format"
+    LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "ClientID is empty or invalid ClientID format"
 Else
-    isClientIDFound = ValidateClientIDClientMaster(cleanedClientID, cliMasterRange)
+    isClientIDFound = cliDict.Exists(cleanedClientID)
     If Not isClientIDFound Then
-       qualityRow = qualityRow + 1
-       wsQuality.Cells(qualityRow, 1).Value = i
-       wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-       wsQuality.Cells(qualityRow, 3).Value = "ClientID not found in Client_Master"
+        LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "ClientID not found in Client_Master"
     Else
-       wsCleaned.Cells(i, 9).Value = cleanedClientID
+        wsCleaned.Cells(i, 9).Value = cleanedClientID
+        wsCleaned.Cells(i, 16).Value = cliDict(cleanedClientID)(0)
+        wsCleaned.Cells(i, 17).Value = cliDict(cleanedClientID)(1)
+        wsCleaned.Cells(i, 18).Value = cliDict(cleanedClientID)(2)
     End If
 End If
 
-If Not isMarketPhaseValid Then
-   qualityRow = qualityRow + 1
-   wsQuality.Cells(qualityRow, 1).Value = i
-   wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-   wsQuality.Cells(qualityRow, 3).Value = "MarketPhase is empty or invalid"
-Else
-   wsCleaned.Cells(i, 10).Value = wsData.Cells(i, 10).Value
-   If UCase(Trim(wsData.Cells(i, 10).Value)) = "CONTINUOUS" Then
-      wsCleaned.Cells(i, 12).Value = "Yes"
+    If Not isMarketPhaseValid Then
+        LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "MarketPhase is empty or invalid"
     Else
-        wsCleaned.Cells(i, 12).Value = "No"
+        wsCleaned.Cells(i, 10).Value = wsData.Cells(i, 10).Value
+        If UCase(Trim(wsData.Cells(i, 10).Value)) = "CONTINUOUS" Then
+            wsCleaned.Cells(i, 12).Value = "Yes"
+        Else
+            wsCleaned.Cells(i, 12).Value = "No"
+        End If
     End If
-End If
 
-If Not ValidateStatusFormat(rawStatus) Then
-   qualityRow = qualityRow + 1
-   wsQuality.Cells(qualityRow, 1).Value = i
-   wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-   wsQuality.Cells(qualityRow, 3).Value = "Status is empty or invalid"
-Else
-   wsCleaned.Cells(i, 8).Value = wsData.Cells(i, 8).Value
-End If
-
-  If IsNull(parsedQty) Then
-       qualityRow = qualityRow + 1
-       wsQuality.Cells(qualityRow, 1).Value = i
-       wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-       wsQuality.Cells(qualityRow, 3).Value = "Quantity is empty or not a number"
-  ElseIf parsedQty < 0 Then
-      wsData.Rows(i).Interior.Color = vbRed
-      qualityRow = qualityRow + 1
-      wsQuality.Cells(qualityRow, 1).Value = i
-      wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-      wsQuality.Cells(qualityRow, 3).Value = "Negative Quantity"
-  Else
-      wsCleaned.Cells(i, 4).Value = parsedQty
-  End If
-  
-  If IsNull(parsed) Then
-     qualityRow = qualityRow + 1
-     If IsEmpty(wsData.Cells(i, 3).Value) Or wsData.Cells(i, 3).Value = "" Or Trim(CStr(wsData.Cells(i, 3).Value)) = "" Then
-        wsQuality.Cells(qualityRow, 1).Value = i
-        wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-        wsQuality.Cells(qualityRow, 3).Value = "Timestamp is empty"
-     Else
-        wsQuality.Cells(qualityRow, 1).Value = i
-        wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-        wsQuality.Cells(qualityRow, 3).Value = "Achtung: Unbekanntes Datenformat"
-     End If
-   Else
-       wsCleaned.Cells(i, 3).Value = parsed
-       wsCleaned.Cells(i, 3).NumberFormat = "yyyy-mm-dd hh:mm:ss"
-   End If
-
-orderType = Trim(CStr(wsData.Cells(i, 6).Value))
-
-If UCase(orderType) = "LIMIT ORDER" Then
-    If IsNull(parsedLimitPrice) Then
-        qualityRow = qualityRow + 1
-        wsQuality.Cells(qualityRow, 1).Value = i
-        wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-        wsQuality.Cells(qualityRow, 3).Value = "LimitPrice is empty or invalid"
-    ElseIf parsedLimitPrice = 0 Then
-        qualityRow = qualityRow + 1
-        wsQuality.Cells(qualityRow, 1).Value = i
-        wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-        wsQuality.Cells(qualityRow, 3).Value = "In der Spalte Limit Price koennten Parsing-Fehler auftreten"
+    If Not ValidateStatusFormat(rawStatus) Then
+        LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Status is empty or invalid"
     Else
-        wsCleaned.Cells(i, 7).Value = parsedLimitPrice
+        wsCleaned.Cells(i, 8).Value = wsData.Cells(i, 8).Value
     End If
-ElseIf UCase(orderType) = "MARKET ORDER" Then
-    If Not IsNull(parsedLimitPrice) Then
-        qualityRow = qualityRow + 1
-        wsQuality.Cells(qualityRow, 1).Value = i
-        wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-        wsQuality.Cells(qualityRow, 3).Value = "Bei Market-Orders sollte kein Limitpreis vorhanden sein"
+
+    If IsNull(parsedQty) Then
+        LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Quantity is empty or not a number"
+    ElseIf parsedQty < 0 Then
+        wsData.Rows(i).Interior.Color = vbRed
+        LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Negative Quantity"
+    Else
+        wsCleaned.Cells(i, 4).Value = parsedQty
     End If
-End If
-  
-  If UCase(Trim(rawStatus)) = "EXECUTED" Or UCase(Trim(rawStatus)) = "PARTIALLY EXECUTED" Then
-     If IsNull(parsedExecutionPrice) Then
-        qualityRow = qualityRow + 1
-        wsQuality.Cells(qualityRow, 1).Value = i
-        wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-        wsQuality.Cells(qualityRow, 3).Value = "Executed but Execution Price is empty"
-      Else
-          wsCleaned.Cells(i, 11).Value = parsedExecutionPrice
-     End If
-  Else
-      If Not IsNull(parsedExecutionPrice) Then
-         qualityRow = qualityRow + 1
-        wsQuality.Cells(qualityRow, 1).Value = i
-        wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-        wsQuality.Cells(qualityRow, 3).Value = "Execution Price sollte nicht vorhanden sein"
-      End If
-  End If
-  
-  If Not isOrderIDValid Then
-        qualityRow = qualityRow + 1
-        wsQuality.Cells(qualityRow, 1).Value = i
-        wsQuality.Cells(qualityRow, 2).Value = wsData.Cells(i, 1).Value
-        wsQuality.Cells(qualityRow, 3).Value = "OrderID is empty or invalid"
-   Else
-     If dict.Exists(orderID) Then
-        dict(orderID) = dict(orderID) & "," & i
-     Else
-        dict(orderID) = i
-     End If
-  End If
-  
-  wsCleaned.Cells(i, 5).Value = wsData.Cells(i, 5).Value
-  wsCleaned.Cells(i, 6).Value = wsData.Cells(i, 6).Value
+
+    If IsNull(parsed) Then
+        If IsEmpty(wsData.Cells(i, 3).Value) Or wsData.Cells(i, 3).Value = "" Or Trim(CStr(wsData.Cells(i, 3).Value)) = "" Then
+            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Timestamp is empty"
+        Else
+            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Achtung: Unbekanntes Datenformat"
+        End If
+    Else
+        wsCleaned.Cells(i, 3).Value = parsed
+        wsCleaned.Cells(i, 3).NumberFormat = "yyyy-mm-dd hh:mm:ss"
+    End If
+
+    orderType = Trim(CStr(wsData.Cells(i, 6).Value))
+
+    If UCase(orderType) = "LIMIT ORDER" Then
+        If IsNull(parsedLimitPrice) Then
+            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "LimitPrice is empty or invalid"
+        ElseIf parsedLimitPrice = 0 Then
+            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "In der Spalte Limit Price koennten Parsing-Fehler auftreten"
+        Else
+            wsCleaned.Cells(i, 7).Value = parsedLimitPrice
+        End If
+    ElseIf UCase(orderType) = "MARKET ORDER" Then
+        If Not IsNull(parsedLimitPrice) Then
+            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Bei Market-Orders sollte kein Limitpreis vorhanden sein"
+        End If
+    End If
+
+    If UCase(Trim(rawStatus)) = "EXECUTED" Or UCase(Trim(rawStatus)) = "PARTIALLY EXECUTED" Then
+        If IsNull(parsedExecutionPrice) Then
+            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Executed but Execution Price is empty"
+        Else
+            wsCleaned.Cells(i, 11).Value = parsedExecutionPrice
+        End If
+    Else
+        If Not IsNull(parsedExecutionPrice) Then
+            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Execution Price sollte nicht vorhanden sein"
+        End If
+    End If
+
+    If Not isOrderIDValid Then
+        LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "OrderID is empty or invalid"
+    Else
+        If dict.Exists(orderID) Then
+            dict(orderID) = dict(orderID) & "," & i
+        Else
+            dict(orderID) = i
+        End If
+    End If
+
+    wsCleaned.Cells(i, 5).Value = wsData.Cells(i, 5).Value
+    wsCleaned.Cells(i, 6).Value = wsData.Cells(i, 6).Value
+
 Next i
 
 For Each key In dict.Keys
- If InStr(dict(key), ",") > 0 Then
-    qualityRow = qualityRow + 1
-    rowList = Replace(dict(key), ",", ", ")
-    wsQuality.Cells(qualityRow, 1).NumberFormat = "@"
-    wsQuality.Cells(qualityRow, 1).Value = dict(key)
-    wsQuality.Cells(qualityRow, 2).Value = key
-    wsQuality.Cells(qualityRow, 3).Value = "doppelte Bestellnummer - betroffene Zeilen: " & rowList
- Else
-    rowNum = CLng(dict(key))
-    wsCleaned.Cells(rowNum, 1).Value = wsData.Cells(rowNum, 1).Value
- End If
+    If InStr(dict(key), ",") > 0 Then
+        rowList = Replace(dict(key), ",", ", ")
+        qualityRow = qualityRow + 1
+        wsQuality.Cells(qualityRow, 1).NumberFormat = "@"
+        wsQuality.Cells(qualityRow, 1).Value = dict(key)
+        wsQuality.Cells(qualityRow, 2).Value = key
+        wsQuality.Cells(qualityRow, 3).Value = "doppelte Bestellnummer - betroffene Zeilen: " & rowList
+    Else
+        rowNum = CLng(dict(key))
+        wsCleaned.Cells(rowNum, 1).Value = wsData.Cells(rowNum, 1).Value
+    End If
 Next key
 
 wsCleaned.Columns.AutoFit
