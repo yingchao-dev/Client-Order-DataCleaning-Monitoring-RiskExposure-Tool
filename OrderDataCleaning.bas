@@ -8,6 +8,11 @@ Sub LogQualityIssue(wsQuality As Worksheet, ByRef qualityRow As Long, rowNum As 
 End Sub
 
 Function ParsePrice(txt As Variant) As Variant
+    If IsError(txt) Then
+        ParsePrice = Null
+        Exit Function
+    End If
+    
     If IsEmpty(txt) Or Trim(CStr(txt)) = "" Then
         ParsePrice = Null
         Exit Function
@@ -184,8 +189,6 @@ Dim wsCMData As Worksheet
 Set wsData = Worksheets("Raw_Client_Orders")
 Set wsSMData = Worksheets("Security_Master")
 Set wsCMData = Worksheets("Client_Master")
-Set secMasterRange = wsSMData.Range("A:A")
-Set cliMasterRange = wsCMData.Range("A:A")
 
 Dim i As Long
 Dim lastRow As Long
@@ -363,10 +366,29 @@ End If
             dict(orderID) = i
         End If
     End If
-
+    
     wsCleaned.Cells(i, 5).Value = wsData.Cells(i, 5).Value
     wsCleaned.Cells(i, 6).Value = wsData.Cells(i, 6).Value
 
+Next i
+
+For i = 2 To lastRow
+Dim orderTyp As Variant
+orderTyp = wsCleaned.Cells(i, 6).Value
+Dim execuPrice As Variant
+execuPrice = wsCleaned.Cells(i, 11).Value
+Dim limitPrice As Variant
+limitPrice = wsCleaned.Cells(i, 7).Value
+
+  If limitPrice <> "" And execuPrice <> "" Then
+       If orderTyp = "Limit Order" Then
+            If wsCleaned.Cells(i, 5).Value = "Buy" And execuPrice > limitPrice Then
+                LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Buy: Execution Price exceeds Limit Price"
+            ElseIf wsCleaned.Cells(i, 5).Value = "Sell" And execuPrice < limitPrice Then
+                LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Sell: Execution Price below Limit Price"
+            End If
+        End If
+   End If
 Next i
 
 For Each key In dict.Keys
