@@ -168,15 +168,16 @@ Set wsCleaned = Worksheets.Add
 wsCleaned.Name = "Cleaned_Data"
 Sheets("Raw_Client_Orders").Rows(1).Copy Destination:=wsCleaned.Rows(1)
 wsCleaned.Cells(1, 11).Copy
-wsCleaned.Range(wsCleaned.Cells(1, 12), wsCleaned.Cells(1, 18)).PasteSpecial Paste:=xlPasteFormats
+wsCleaned.Range(wsCleaned.Cells(1, 12), wsCleaned.Cells(1, 19)).PasteSpecial Paste:=xlPasteFormats
 Application.CutCopyMode = False
 wsCleaned.Cells(1, 12).Value = "Eligible_For_Price_Check"
 wsCleaned.Cells(1, 13).Value = "Security Name"
-wsCleaned.Cells(1, 14).Value = "Security Type"
+wsCleaned.Cells(1, 14).Value = "Instrument Type"
 wsCleaned.Cells(1, 15).Value = "Currency"
 wsCleaned.Cells(1, 16).Value = "Client Name"
 wsCleaned.Cells(1, 17).Value = "Client Type"
 wsCleaned.Cells(1, 18).Value = "Region"
+wsCleaned.Cells(1, 19).Value = "Execution Time"
 
 wsQuality.Cells(1, 1).Value = "Row"
 wsQuality.Cells(1, 2).Value = "OrderID"
@@ -196,6 +197,7 @@ Dim qualityRow As Long
 Dim rowNum As Long
 
 Dim parsed As Variant
+Dim parsedExecuTime As Variant
 Dim parsedLimitPrice As Variant
 Dim parsedExecutionPrice As Variant
 Dim parsedQty As Variant
@@ -214,6 +216,7 @@ Dim rawStatus As String
 Dim rawClientID As String
 Dim cleanedClientID As String
 Dim orderType As String
+Dim rawExceuTime As Variant
 
 Dim dict As Object
 Dim key As Variant
@@ -250,6 +253,7 @@ For i = 2 To lastRow
 
     orderID = wsData.Cells(i, 1).Value
     parsed = ParseTimestamp(wsData.Cells(i, 3).Value)
+    parsedExecuTime = ParseTimestamp(wsData.Cells(i, 12).Value)
     parsedLimitPrice = ParsePrice(wsData.Cells(i, 7).Value)
     parsedExecutionPrice = ParsePrice(wsData.Cells(i, 11).Value)
     parsedQty = ParseQuantity(wsData.Cells(i, 4).Value)
@@ -260,6 +264,7 @@ For i = 2 To lastRow
     cleanedISIN = Trim(rawISIN)
     rawStatus = wsData.Cells(i, 8).Value
     rawClientID = wsData.Cells(i, 9).Value
+    rawExceuTime = wsData.Cells(i, 12).Value
     cleanedClientID = Trim(rawClientID)
 
     isISINValid = ValidateISINFormat(rawISIN)
@@ -346,14 +351,18 @@ End If
     End If
 
     If UCase(Trim(rawStatus)) = "EXECUTED" Or UCase(Trim(rawStatus)) = "PARTIALLY EXECUTED" Then
-        If IsNull(parsedExecutionPrice) Then
-            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Executed but Execution Price is empty"
+        If IsNull(parsedExecutionPrice) Or IsEmpty(rawExceuTime) Then
+            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Executed but Execution Price or(and) Executon Time is(are) empty oder status is false"
         Else
             wsCleaned.Cells(i, 11).Value = parsedExecutionPrice
+            wsCleaned.Cells(i, 19).Value = parsedExecuTime
         End If
     Else
-        If Not IsNull(parsedExecutionPrice) Then
-            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Execution Price sollte nicht vorhanden sein"
+        If Not IsNull(parsedExecutionPrice) Or Not IsEmpty(rawExceuTime) Then
+            LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Ausfuerungspreis oder(und) Ausfuerungszeit vorhanden, Status vermutlich veraltet"
+            wsCleaned.Cells(i, 11).Value = parsedExecutionPrice
+            wsCleaned.Cells(i, 19).Value = parsedExecuTime
+            wsCleaned.Cells(i, 8).Value = Null
         End If
     End If
 
@@ -364,6 +373,13 @@ End If
             dict(orderID) = dict(orderID) & "," & i
         Else
             dict(orderID) = i
+        End If
+    End If
+    
+    If Not IsNull(parsed) And Not IsNull(parsedExecuTime) Then
+       If parsedExecuTime < parsed Then
+          LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Ausfuehrungszeit liegt vor Auftragszeit (Zeitstempel-Konflikt)"
+          wsCleaned.Cells(i, 19).Value = Null
         End If
     End If
     
