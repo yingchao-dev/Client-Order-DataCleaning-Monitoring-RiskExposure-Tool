@@ -173,7 +173,7 @@ Function ValidateMarketPhaseFormat(txt As Variant) As Boolean
 End Function
 
 Sub DataCleaning()
-
+    
     On Error Resume Next
     Worksheets("Data_Quality").Delete
     Worksheets("Cleaned_Data").Delete
@@ -203,6 +203,18 @@ Sub DataCleaning()
     wsQuality.Cells(1, 1).Value = "Row"
     wsQuality.Cells(1, 2).Value = "OrderID"
     wsQuality.Cells(1, 3).Value = "Problem"
+    Dim col As Long
+    For col = 1 To 20
+    wsCleaned.Cells(1, col).AddComment "Hinweis: Gelb markierte Zeilen kennzeichnen Auftraege, deren Notional Value den definierten Grossauftrags-Schwellenwert ueberschreitet " & _
+                                                "(Details zu Notional Value und Schwellenwert je Auftrag siehe Large_Trade_Alert sowie Sub MonitorLargeTrade)."
+    wsCleaned.Cells(1, col).Comment.Shape.TextFrame.AutoSize = True
+    With wsCleaned.Cells(1, col).Comment.Shape
+        .TextFrame.AutoSize = False
+        .Width = 200
+        .Height = 100
+        .TextFrame.Characters.Font.Size = 11
+    End With
+    Next col
 
     Dim wsData As Worksheet
     Dim wsSMData As Worksheet

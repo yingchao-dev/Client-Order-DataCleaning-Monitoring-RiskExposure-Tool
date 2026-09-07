@@ -18,9 +18,12 @@ End Sub
 '        instrumentklassenspezifischen Grossauftrags-Schwellenwert
 '        ueberschreitet.
 ' Input: Cleaned_Data (Spalte Quantity, Execution Price, Instrument Type, Status)
-' Output: Neues Sheet "Large_Trade_Alert"
+' Output: Neues Sheet "Large_Trade_Alert"; zusaetzlich werden in
+'         Cleaned_Data alle betroffenen Zeilen gelb markiert
+'         (Interior.Color = vbYellow) als visueller Hinweis auf
+'         Exposure-Ueberschreitungen.
 ' Bekannte Einschraenkung: Feste Schwellenwerte je Instrument-Klasse
-'        (ETF/Equity: 200.000, Bond: 150.000, Structured Product: 50.000),
+'        (ETF:200.000, Equity:70000 Bond: 150.000, Structured Product: 50.000),
 '        keine dynamische Kalibrierung - die Schwellenwerte haengen von
 '        institutsspezifischen Risikoparametern ab, die nicht oeffentlich
 '        verfuegbar sind.
@@ -74,7 +77,7 @@ Sub MonitorLargeTrade()
     Set dict = CreateObject("Scripting.Dictionary")
     
     dict.Add "ETF", 200000
-    dict.Add "Equity", 200000
+    dict.Add "Equity", 700000
     dict.Add "Bond", 150000
     dict.Add "Structured Product", 50000
     etfExposure = dict("ETF")
@@ -95,15 +98,19 @@ Sub MonitorLargeTrade()
             If UCase(status) = "EXECUTED" Or UCase(status) = "PARTIALLY EXECUTED" Then
                notionalValue = quantity * executionPrice
                 If instrumentType = "ETF" And notionalValue > etfExposure Then
+                   wsCleaned.Rows(i).Interior.Color = vbYellow               ' gelb markiert(Interior.Color = vbYellow) als visueller Hinweis auf Exposure-Ueberschreitungen.
                    ExposureIssue wsMonitor, monitorRow, orderID, isin, instrumentType, quantity, executionPrice, notionalValue, dict("ETF"), "Notional Value > " & etfExposure
                 End If
                 If instrumentType = "Equity" And notionalValue > equityExposure Then
+                   wsCleaned.Rows(i).Interior.Color = vbYellow
                    ExposureIssue wsMonitor, monitorRow, orderID, isin, instrumentType, quantity, executionPrice, notionalValue, dict("Equity"), "Notional Value > " & equityExposure
                 End If
                 If instrumentType = "Bond" And notionalValue / 100 > bondExposure Then
+                   wsCleaned.Rows(i).Interior.Color = vbYellow
                    ExposureIssue wsMonitor, monitorRow, orderID, isin, instrumentType, quantity, executionPrice, notionalValue / 100, dict("Bond"), "Notional Value > " & bondExposure
                 End If
                 If instrumentType = "Structured Product" And notionalValue > spExposure Then
+                   wsCleaned.Rows(i).Interior.Color = vbYellow
                    ExposureIssue wsMonitor, monitorRow, orderID, isin, instrumentType, quantity, executionPrice, notionalValue, dict("Structured Product"), "Notional Value > " & spExposure
                 End If
              End If
@@ -225,11 +232,12 @@ End Sub
 ' Input: Cleaned_Data (Spalte ISIN, Instrument Type, Quantity,
 '        Execution Price, Direction, Status)
 ' Output: Neues Sheet "Security_Exposure"
-' Bekannte Einschraenkung: keine - die ISIN-Liste wird bewusst aus
-'        Cleaned_Data abgeleitet statt aus Security_Master, damit nur
-'        ISINs mit tatsaechlicher Handelsaktivitaet in der Exposure-
-'        Uebersicht erscheinen (Security_Master enthaelt auch nie
-'        gehandelte ISINs, die hier keinen Mehrwert haetten).
+' Design-Hinweis: Die ISIN-Liste wird bewusst aus Cleaned_Data
+'        abgeleitet statt aus Security_Master, damit nur ISINs mit
+'        tatsaechlicher Handelsaktivitaet in der Exposure-Uebersicht
+'        erscheinen (Security_Master enthaelt auch nie gehandelte
+'        ISINs, die hier keinen Mehrwert haetten).
+' Bekannte Einschraenkung: keine
 ' ============================================================
 Sub MonitorAssetExposureBySecurity()
 
