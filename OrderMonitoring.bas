@@ -39,7 +39,7 @@ Sub MonitorPendingOrders()
     wsMonitor.Cells(1, 6).Value = "Alert"
 
     Dim lastCleanRow As Long
-    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).Row
+    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).row
 
     Dim i As Long
     Dim monitorRow As Long
@@ -115,7 +115,7 @@ Sub MonitorPriceDeviation()
     wsMonitor.Cells(1, 6).Value = "Alert"
 
     Dim lastCleanRow As Long
-    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).Row
+    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).row
 
     Dim i As Long
     Dim monitorRow As Long
@@ -223,7 +223,7 @@ Sub MonitorExecutionDelay()
     wsMonitor.Cells(1, 7).Value = "Alert"
 
     Dim lastCleanRow As Long
-    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).Row
+    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).row
 
     Dim i As Long
     Dim monitorRow As Long
@@ -243,10 +243,10 @@ Sub MonitorExecutionDelay()
     Dim orderID As Variant
     Dim instrumentType As Variant
     Set dict = CreateObject("Scripting.Dictionary")
-    dict.Add "ETF", 10
-    dict.Add "Equity", 20
-    dict.Add "Bond", 60
-    dict.Add "Structured Product", 120
+    dict.Add "ETF", 20
+dict.Add "Equity", 70
+dict.Add "Bond", 150
+dict.Add "Structured Product", 250
     
     etfDelay = dict("ETF")
     equityDelay = dict("Equity")
@@ -320,7 +320,7 @@ Sub MonitorOrderQuantitySpike()
     wsMonitor.Cells(1, 6).Value = "Alert"
 
     Dim lastCleanRow As Long
-    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).Row
+    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).row
 
     Dim i As Long
     Dim orderID As Variant

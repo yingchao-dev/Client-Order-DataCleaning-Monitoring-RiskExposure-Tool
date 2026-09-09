@@ -55,7 +55,7 @@ Sub MonitorLargeTrade()
     wsMonitor.Cells(1, 8).Value = "Alert"
 
     Dim lastCleanRow As Long
-    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).Row
+    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).row
 
     Dim i As Long
     Dim monitorRow As Long
@@ -166,7 +166,7 @@ Sub MonitorAssetExposureInstrumentType()
     wsMonitor.Cells(5, 1).Value = "Structured Product"
     
     Dim lastCleanRow As Long
-    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).Row
+    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).row
 
     Dim i As Long
     Dim monitorRow As Long
@@ -264,7 +264,7 @@ Sub MonitorAssetExposureBySecurity()
     wsMonitor.Cells(1, 6).Value = "Gross Exposure"
     
     Dim lastCleanRow As Long
-    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).Row
+    lastCleanRow = wsCleaned.Cells(wsCleaned.Rows.Count, 1).End(xlUp).row
     
     Dim i As Long
     Dim monitorRow As Long
@@ -328,7 +328,7 @@ Sub MonitorAssetExposureBySecurity()
      Next i
      
      Dim lastRow As Long
-     lastRow = wsMonitor.Cells(wsMonitor.Rows.Count, 1).End(xlUp).Row
+     lastRow = wsMonitor.Cells(wsMonitor.Rows.Count, 1).End(xlUp).row
 
      For i = 2 To lastRow
          isin = wsMonitor.Cells(i, 1).Value

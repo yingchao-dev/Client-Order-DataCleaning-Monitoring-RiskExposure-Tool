@@ -1,4 +1,5 @@
 Attribute VB_Name = "OrderDataCleaning"
+Option Explicit
 '============================================================
 ' Layer¢Ù: Data Cleaning
 ' Zweck: Bereinigt Raw_Client_Orders zeilenweise: validiert Format
@@ -18,7 +19,6 @@ Attribute VB_Name = "OrderDataCleaning"
 '        die Ergebnisse der beiden nachfolgenden Ebenen. Dieser manuelle
 '        Schritt wird im vorliegenden Projekt (noch) nicht abgebildet.
 ' ============================================================
-Option Explicit
 
 Sub LogQualityIssue(wsQuality As Worksheet, ByRef qualityRow As Long, rowNum As Long, orderIDValue As Variant, problemDesc As String)
     qualityRow = qualityRow + 1
@@ -259,13 +259,13 @@ Sub DataCleaning()
     Set dict = CreateObject("Scripting.Dictionary")
 
     qualityRow = 1
-    lastRow = wsData.Cells(wsData.Rows.Count, 1).End(xlUp).Row
+    lastRow = wsData.Cells(wsData.Rows.Count, 1).End(xlUp).row
 
     Dim secDict As Object
     Set secDict = CreateObject("Scripting.Dictionary")
 
     Dim lastSecRow As Long
-    lastSecRow = wsSMData.Cells(wsSMData.Rows.Count, 1).End(xlUp).Row
+    lastSecRow = wsSMData.Cells(wsSMData.Rows.Count, 1).End(xlUp).row
                              
     Dim j As Long            ' Hinweis: Security_Master und Client_Master werden als bereits bereinigte, vertrauenswuerdige Referenzdaten behandelt (im Gegensatz zu
                              ' Raw_Client_Orders) - daher hier bewusst kein Trim beim Aufbau des Dictionary.
@@ -277,7 +277,7 @@ Sub DataCleaning()
     Set cliDict = CreateObject("Scripting.Dictionary")
 
     Dim lastCliRow As Long
-    lastCliRow = wsCMData.Cells(wsCMData.Rows.Count, 1).End(xlUp).Row
+    lastCliRow = wsCMData.Cells(wsCMData.Rows.Count, 1).End(xlUp).row
 
     Dim k As Long
     For k = 2 To lastCliRow
@@ -443,7 +443,7 @@ Sub DataCleaning()
         End If
     Next i
 
-    For Each key In dict.Keys
+    For Each key In dict.keys
         If InStr(dict(key), ",") > 0 Then
             rowList = Replace(dict(key), ",", ", ")
             qualityRow = qualityRow + 1
