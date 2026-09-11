@@ -280,84 +280,151 @@ Sub BuildSummary()
   Dim totalGrossExposure As Double
   totalGrossExposure = GetTotalGrossExposure()
   
-  ' --- Schritt 6: Ergebnisse in feste Zellen schreiben ---
+' --- Schritt 6: Ergebnisse in feste Zellen schreiben (Dashboard-Layout) ---
   wsSummary.Cells(1, 1).Value = "Daily Anomaly Summary"
-  wsSummary.Cells(1, 1).Font.Bold = True
-  wsSummary.Cells(1, 1).Font.Size = 14
-  
-  wsCleaned.Cells(1, 11).Copy
-  wsSummary.Range(wsSummary.Cells(3, 1), wsSummary.Cells(7, 1)).PasteSpecial Paste:=xlPasteFormats
-  Application.CutCopyMode = False
-  
-  wsSummary.Cells(3, 1).Value = "Auffaellige Orders gesamt"
-  wsSummary.Cells(3, 2).Value = flaggedOrders.Count
-  wsSummary.Cells(3, 4).Value = "(dedupliziert; Summe der Einzeltypen kann hoeher sein, da Auftraege mehrere Auffaelligkeiten aufweisen koennen)"
-  wsSummary.Cells(4, 1).Value = "  davon Preisabweichung"
-  wsSummary.Cells(4, 2).Value = countPriceDeviation
-  wsSummary.Cells(5, 1).Value = "  davon Ausfuehrungsverzoegerung"
-  wsSummary.Cells(5, 2).Value = countExecutionDelay
-  wsSummary.Cells(6, 1).Value = "  davon Order-Mengen-Spike"
-  wsSummary.Cells(6, 2).Value = countOrderSpike
-  wsSummary.Cells(7, 1).Value = "  davon Exposure-Limit ueberschritten"
-  wsSummary.Cells(7, 2).Value = countLargeTrade
-  
-  wsSummary.Cells(9, 1).Value = "Konzernweites Gross Exposure"
-  wsSummary.Cells(9, 2).Value = totalGrossExposure
-  wsSummary.Cells(9, 2).NumberFormat = "#,##0.00"
+  wsSummary.Range("A1:H1").Interior.Color = RGB(46, 64, 87)
+  wsSummary.Range("A1:H1").Font.Color = RGB(255, 255, 255)
+  wsSummary.Range("A1:H1").Font.Bold = True
+  wsSummary.Range("A1:H1").Font.Size = 16
+  wsSummary.Rows(1).RowHeight = 28
 
-  wsSummary.Cells(11, 1).Value = "Top 3 auffaellige Kunden (nach Volumen)"
-  wsSummary.Cells(11, 1).Font.Bold = True
-  
-   Dim topClients() As Variant
-   Dim topAmounts() As Double
-   GetTopN clientAmountDict, 3, topClients, topAmounts
+  ' Karte 1: Auffaellige Orders (Spalte A)
+  wsSummary.Cells(3, 1).Value = "Auffaellige Orders"
+  wsSummary.Cells(3, 1).Interior.Color = RGB(46, 64, 87)
+  wsSummary.Cells(3, 1).Font.Color = RGB(255, 255, 255)
+  wsSummary.Cells(3, 1).Font.Bold = True
+  wsSummary.Cells(3, 1).HorizontalAlignment = xlCenter
 
-   Dim r As Long
-   For r = 0 To UBound(topClients) 'um zu verhindern, dass bei ungewoehnlich wenigen Kunden an einem bestimmten Tag ein Array-Index-Fehler (Out of Bounds) auftritt
-        wsSummary.Cells(12 + r, 1).Value = topClients(r)
-        wsSummary.Cells(12 + r, 2).Value = topAmounts(r)
-        wsSummary.Cells(12 + r, 2).NumberFormat = "#,##0.00"
-   Next r
+  wsSummary.Range("A4:A8").Interior.Color = RGB(210, 225, 240)
+  wsSummary.Cells(4, 1).Value = "gesamt: " & flaggedOrders.Count
+  wsSummary.Cells(5, 1).Value = "davon Preisabweichung: " & countPriceDeviation
+  wsSummary.Cells(6, 1).Value = "davon Ausfuehrungsverzoegerung: " & countExecutionDelay
+  wsSummary.Cells(7, 1).Value = "davon Order-Mengen-Spike: " & countOrderSpike
+  wsSummary.Cells(8, 1).Value = "davon Exposure-Limit ueberschritten: " & countLargeTrade
+  With wsSummary.Range("A3:A8")
+      .Borders.LineStyle = xlContinuous
+      .Borders.Color = RGB(190, 190, 190)
+  End With
 
-   wsSummary.Cells(16, 1).Value = "Auffaelligkeitsrate nach Asset-Klasse"
-   wsSummary.Cells(16, 1).Font.Bold = True
-   wsSummary.Cells(16, 2).Value = "Auffaellig"
-   wsSummary.Cells(16, 3).Value = "Gesamt"
-   wsSummary.Cells(16, 4).Value = "Rate"
+  ' Karte 2: Gross Exposure (Spalten B bis D)
+  wsSummary.Range("B3:D3").Merge
+  wsSummary.Range("B3:D3").Value = "Gross Exposure"
+  wsSummary.Range("B3:D3").Interior.Color = RGB(46, 64, 87)
+  wsSummary.Range("B3:D3").Font.Color = RGB(255, 255, 255)
+  wsSummary.Range("B3:D3").Font.Bold = True
+  wsSummary.Range("B3:D3").HorizontalAlignment = xlCenter
 
-   Dim assetTypes As Variant
-        assetTypes = Array("Equity", "ETF", "Bond", "Structured Product")
+  wsSummary.Range("B4:D8").Interior.Color = RGB(200, 230, 220)
+  wsSummary.Range("B5:D5").Merge
+  wsSummary.Cells(5, 2).Value = totalGrossExposure
+  wsSummary.Cells(5, 2).NumberFormat = "#,##0.00"
+  wsSummary.Cells(5, 2).Font.Size = 16
+  wsSummary.Cells(5, 2).Font.Bold = True
+  wsSummary.Cells(5, 2).Font.Color = RGB(46, 64, 87)
+  wsSummary.Range("B7:D7").Merge
+  wsSummary.Cells(7, 2).Value = "(aus Layer3 uebernommen)"
+  wsSummary.Cells(7, 2).Font.Size = 9
+  wsSummary.Cells(7, 2).Font.Italic = True
+  With wsSummary.Range("B3:D8")
+      .Borders.LineStyle = xlContinuous
+      .Borders.Color = RGB(190, 190, 190)
+  End With
 
-   Dim a As Long
-   Dim anomalyCnt As Long
-   Dim totalCnt As Long
+  ' Karte 3: Top 3 Kunden (Spalten E bis H)
+  wsSummary.Range("E3:H3").Merge
+  wsSummary.Range("E3:H3").Value = "Top 3 Kunden (nach Volumen)"
+  wsSummary.Range("E3:H3").Interior.Color = RGB(46, 64, 87)
+  wsSummary.Range("E3:H3").Font.Color = RGB(255, 255, 255)
+  wsSummary.Range("E3:H3").Font.Bold = True
+  wsSummary.Range("E3:H3").HorizontalAlignment = xlCenter
 
-   For a = 0 To UBound(assetTypes)  'So geschrieben, lassen sich jederzeit weitere Asset-Klassen hinzufuegen, ohne den Loop-Code anzufassen.
-        wsSummary.Cells(17 + a, 1).Value = assetTypes(a)
+  wsSummary.Range("E4:H8").Interior.Color = RGB(240, 220, 200)
 
-        If assetCountDict.Exists(assetTypes(a)) Then
-            anomalyCnt = assetCountDict(assetTypes(a))
-        Else
-            anomalyCnt = 0
-        End If
+  Dim topClients() As Variant
+  Dim topAmounts() As Double
+  GetTopN clientAmountDict, 3, topClients, topAmounts
 
-        If totalCountByType.Exists(assetTypes(a)) Then
-            totalCnt = totalCountByType(assetTypes(a))
-        Else
-            totalCnt = 0
-        End If
+  Dim r As Long
+  For r = 0 To UBound(topClients) 'um zu verhindern, dass bei ungewoehnlich wenigen Kunden an einem bestimmten Tag ein Array-Index-Fehler (Out of Bounds) auftritt
+      wsSummary.Range(wsSummary.Cells(5 + r, 5), wsSummary.Cells(5 + r, 6)).Merge
+      wsSummary.Cells(5 + r, 5).Value = topClients(r)
+      wsSummary.Range(wsSummary.Cells(5 + r, 7), wsSummary.Cells(5 + r, 8)).Merge
+      wsSummary.Cells(5 + r, 7).Value = topAmounts(r)
+      wsSummary.Cells(5 + r, 7).NumberFormat = "#,##0.00"
+  Next r
+  With wsSummary.Range("E3:H8")
+      .Borders.LineStyle = xlContinuous
+      .Borders.Color = RGB(190, 190, 190)
+  End With
 
-        wsSummary.Cells(17 + a, 2).Value = anomalyCnt
-        wsSummary.Cells(17 + a, 3).Value = totalCnt
+  ' Detailtabelle: Auffaelligkeitsrate nach Asset-Klasse (Spalten A bis H)
+  wsSummary.Range("A11:H11").Merge
+  wsSummary.Range("A11:H11").Value = "Auffaelligkeitsrate nach Asset-Klasse"
+  wsSummary.Range("A11:H11").Interior.Color = RGB(46, 64, 87)
+  wsSummary.Range("A11:H11").Font.Color = RGB(255, 255, 255)
+  wsSummary.Range("A11:H11").Font.Bold = True
+  wsSummary.Range("A11:H11").HorizontalAlignment = xlCenter
 
-        If totalCnt > 0 Then
-            wsSummary.Cells(17 + a, 4).Value = anomalyCnt / totalCnt
-            wsSummary.Cells(17 + a, 4).NumberFormat = "0.00%"
-        Else
-            wsSummary.Cells(17 + a, 4).Value = "n/a"  'totalCnt = 0
-        End If
-   Next a
-  
+  wsSummary.Range("A12:B12").Merge
+  wsSummary.Cells(12, 1).Value = "Asset-Klasse"
+  wsSummary.Range("C12:D12").Merge
+  wsSummary.Cells(12, 3).Value = "Auffaellig"
+  wsSummary.Range("E12:F12").Merge
+  wsSummary.Cells(12, 5).Value = "Gesamt"
+  wsSummary.Range("G12:H12").Merge
+  wsSummary.Cells(12, 7).Value = "Rate"
+  wsSummary.Range("A12:H12").Interior.Color = RGB(225, 225, 225)
+  wsSummary.Range("A12:H12").Font.Bold = True
+
+  Dim assetTypes As Variant
+  assetTypes = Array("Equity", "ETF", "Bond", "Structured Product")
+
+  Dim a As Long
+  Dim anomalyCnt As Long
+  Dim totalCnt As Long
+
+  For a = 0 To UBound(assetTypes)  'So geschrieben, lassen sich jederzeit weitere Asset-Klassen hinzufuegen, ohne den Loop-Code anzufassen.
+      wsSummary.Range(wsSummary.Cells(13 + a, 1), wsSummary.Cells(13 + a, 2)).Merge
+      wsSummary.Cells(13 + a, 1).Value = assetTypes(a)
+
+      If assetCountDict.Exists(assetTypes(a)) Then
+          anomalyCnt = assetCountDict(assetTypes(a))
+      Else
+          anomalyCnt = 0
+      End If
+      If totalCountByType.Exists(assetTypes(a)) Then
+          totalCnt = totalCountByType(assetTypes(a))
+      Else
+          totalCnt = 0
+      End If
+
+      wsSummary.Range(wsSummary.Cells(13 + a, 3), wsSummary.Cells(13 + a, 4)).Merge
+      wsSummary.Cells(13 + a, 3).Value = anomalyCnt
+      wsSummary.Range(wsSummary.Cells(13 + a, 5), wsSummary.Cells(13 + a, 6)).Merge
+      wsSummary.Cells(13 + a, 5).Value = totalCnt
+      wsSummary.Range(wsSummary.Cells(13 + a, 7), wsSummary.Cells(13 + a, 8)).Merge
+      If totalCnt > 0 Then
+          wsSummary.Cells(13 + a, 7).Value = anomalyCnt / totalCnt
+          wsSummary.Cells(13 + a, 7).NumberFormat = "0.00%"
+      Else
+          wsSummary.Cells(13 + a, 7).Value = "n/a"  'totalCnt = 0
+      End If
+
+      If (13 + a) Mod 2 = 1 Then
+          wsSummary.Range(wsSummary.Cells(13 + a, 1), wsSummary.Cells(13 + a, 8)).Interior.Color = RGB(247, 247, 247)
+      End If
+  Next a
+
+  With wsSummary.Range("A11:H16")
+      .Borders.LineStyle = xlContinuous
+      .Borders.Color = RGB(190, 190, 190)
+  End With
+
+  ' Hinweis: Die verwendeten Hintergrundfarben der drei Karten tragen keine
+  ' inhaltliche Bedeutung (keine Ampel-Logik); sie dienen ausschliesslich
+  ' der visuellen Abgrenzung der drei unterschiedlichen Informationsbloecke.
+
   wsSummary.Columns.AutoFit
-    
+  wsSummary.Range("A1").Select
+
 End Sub

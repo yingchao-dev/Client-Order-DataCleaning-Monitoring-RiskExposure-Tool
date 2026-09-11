@@ -190,6 +190,8 @@ Sub DataCleaning()
     Sheets("Raw_Client_Orders").Rows(1).Copy Destination:=wsCleaned.Rows(1)
     wsCleaned.Cells(1, 11).Copy
     wsCleaned.Range(wsCleaned.Cells(1, 12), wsCleaned.Cells(1, 19)).PasteSpecial Paste:=xlPasteFormats
+    wsCleaned.Cells(1, 11).Copy
+    wsQuality.Range(wsQuality.Cells(1, 1), wsQuality.Cells(1, 3)).PasteSpecial Paste:=xlPasteFormats
     Application.CutCopyMode = False
     wsCleaned.Cells(1, 12).Value = "Eligible_For_Price_Check"
     wsCleaned.Cells(1, 13).Value = "Security Name"

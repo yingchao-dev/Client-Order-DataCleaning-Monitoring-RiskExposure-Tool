@@ -52,11 +52,11 @@ Sub MonitorPendingOrders()
 
         If UCase(wsCleaned.Cells(i, 8).Value) = "PENDING" Then
 
-            If Not IsEmpty(wsCleaned.Cells(i, 3).Value) Then
-                orderAgeMinutes = DateDiff("n", wsCleaned.Cells(i, 3).Value, Now())
-
-                If orderAgeMinutes > thresholdMinutes Then
-                    monitorRow = monitorRow + 1
+            If Not IsEmpty(wsCleaned.Cells(i, 3).Value) Then                          ' Bekannte Einschraenkung: Die Timestamps im simulierten Datensatz
+                orderAgeMinutes = DateDiff("n", wsCleaned.Cells(i, 3).Value, Now())   ' liegen im Dezember 2025; da die Pending-Dauer gegen den aktuellen
+                                                                                      ' Zeitpunkt (Now()) berechnet wird, erscheinen die Wartezeiten
+                If orderAgeMinutes > thresholdMinutes Then                            ' entsprechend sehr lang. Dies ist eine Eigenschaft der statischen
+                    monitorRow = monitorRow + 1                                       ' Testdaten, kein Fehler in der Berechnungslogik.
                     wsMonitor.Cells(monitorRow, 1).Value = wsCleaned.Cells(i, 1).Value
                     wsMonitor.Cells(monitorRow, 2).Value = wsCleaned.Cells(i, 2).Value
                     wsMonitor.Cells(monitorRow, 3).Value = wsCleaned.Cells(i, 9).Value
@@ -75,7 +75,7 @@ Sub MonitorPendingOrders()
 End Sub
 ' ============================================================
 ' Sub: MonitorPriceDeviation
-' Zweck: Erkennt Ausfuehrungen, deren Preis mehr als [threshold] vom
+' Zweck: Erkennt Ausfuehrungen, deren Preis mehr als threshold vom
 '        durchschnittlichen Ausfuehrungspreis derselben ISIN abweicht
 '        (nur bei Continuous-Trading-Orders; bei der Durchschnitts-
 '        berechnung wird die betrachtete Ausfuehrung selbst ausgeschlossen,
