@@ -2,8 +2,8 @@
 
 *Portfolio Project — Trading Support & Execution Quality Analysis*
 
-**Autor:** Yingchao Li
-**Stand:** 25.09.2026
+**Autor:** Yingchao Li<br>
+**Stand:** 25.09.2026<br>
 **Struktur:** 5-Layer-Architektur (Cleaning → Monitoring → Exposure → Reporting, orchestrated by Start_Here)
 
 ---
