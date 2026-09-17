@@ -88,8 +88,8 @@ End Sub
 '        fundiertere Umsetzung (rollierender Mittelwert + adaptive
 '        Schwellenwerte auf Basis der Standardabweichung, gruppiert nach
 '        ISIN, inkl. Parameter-Sensitivitaetstest) erfolgt im
-'        Python-Folgeprojekt, siehe: ¡¸https://github.com/yingchao-dev/
-'        Client -Order - Monitoring - Python - FollowOn / blob / main / src / price_deviation.py¡¹
+'        Python-Folgeprojekt, siehe: ï¿½ï¿½https://github.com/yingchao-dev/
+'        Client -Order - Monitoring - Python - FollowOn / blob / main / src / price_deviation.pyï¿½ï¿½
 '        Kommt eine ISIN nur einmal im Datensatz vor, kann der
 '        Durchschnitt ohne den eigenen Wert nicht berechnet werden;
 '        diese Zeile wird dann uebersprungen.
@@ -303,7 +303,7 @@ End Sub
 ' Output: Neues Sheet "Order_Quantity_Spike_Monitoring"
 ' Bekannte Einschraenkung: Feste Multiple-Schwelle (3x), keine
 '        dynamische/rollierende Baseline. Methodisch aehnlich zur
-'        Preisabweichungspruefung (Layer¢Ú/MonitorPriceDeviation)
+'        Preisabweichungspruefung (Layerï¿½ï¿½/MonitorPriceDeviation)
 '        - eine gesonderte statistische Vertiefung wurde daher nicht
 '        separat umgesetzt; die Ueberlegungen zur dynamischen
 '        Schwellenwertmethode (siehe Python-Projekt price_deviation.py)
