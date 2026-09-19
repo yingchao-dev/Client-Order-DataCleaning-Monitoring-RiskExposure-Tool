@@ -1,9 +1,9 @@
 Attribute VB_Name = "Start_Here"
 Option Explicit
 ' ============================================================
-' Layer¢Ý: Start_Here / RunFullPipeline
+' Layer 5: Start_Here / RunFullPipeline
 ' Zweck: Zentraler Einstiegspunkt fuer den gesamten Ablauf. Ruft
-'        alle Sub-Prozeduren aus Layer¢Ù-¢Ü in der richtigen
+'        alle Sub-Prozeduren aus Layer1-4 in der richtigen
 '        Reihenfolge auf (Cleaning ¡ú Monitoring ¡ú Exposure Tracking
 '        ¡ú Reporting) und zeigt am Ende eine Zusammenfassung der
 '        erstellten Sheets an.
@@ -12,7 +12,7 @@ Option Explicit
 '        in der VBA-Toolbar klicken.
 ' Input: Raw_Client_Orders, Security_Master, Client_Master (muessen
 '        vollstaendig und unveraendert vorliegen)
-' Output: Alle in Layer¢Ù-¢Ü definierten Sheets (insgesamt 10 neue,
+' Output: Alle in Layer1-4 definierten Sheets (insgesamt 10 neue,
 '        zusaetzlich zu den 4 urspruenglichen)
 ' Fehlerbehandlung: Bei einem Abbruch waehrend der Ausfuehrung wird
 '        eine Hinweismeldung mit moeglicher Ursache angezeigt statt

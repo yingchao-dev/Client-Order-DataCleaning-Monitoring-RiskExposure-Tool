@@ -84,12 +84,9 @@ End Sub
 ' Input: Cleaned_Data (Spalte ISIN, Execution Price, Eligible_For_Price_Check)
 ' Output: Neues Sheet "Price_Deviation_Monitoring"
 ' Bekannte Einschraenkung: Schwellenwert ist fest auf 5% gesetzt und nicht
-'        an die tatsaechliche Volatilitaet angepasst. Eine statistisch
-'        fundiertere Umsetzung (rollierender Mittelwert + adaptive
-'        Schwellenwerte auf Basis der Standardabweichung, gruppiert nach
-'        ISIN, inkl. Parameter-Sensitivitaetstest) erfolgt im
-'        Python-Folgeprojekt, siehe: ��https://github.com/yingchao-dev/
-'        Client -Order - Monitoring - Python - FollowOn / blob / main / src / price_deviation.py��
+'        an die tatsaechliche Volatilitaet angepasst - eine dynamische
+'        Schwellenwert-Variante ist Teil eines geplanten Python-Moduls.
+'        [https://github.com/yingchao-dev/Client-Order-Monitoring-Python-FollowOn/blob/main/src/price_deviation.py]
 '        Kommt eine ISIN nur einmal im Datensatz vor, kann der
 '        Durchschnitt ohne den eigenen Wert nicht berechnet werden;
 '        diese Zeile wird dann uebersprungen.
@@ -200,11 +197,8 @@ End Sub
 '        basiert geschaetzt, nicht empirisch kalibriert. Echte
 '        Ausfuehrungsverzoegerungsdaten sind interne Informationen
 '        des jeweiligen Instituts und daher nicht zugaenglich.
-'        Eine statistisch fundiertere Umsetzung (rollierender
-'        Mittelwert + adaptive Schwellenwerte auf Basis der
-'        Standardabweichung, weiterhin gruppiert nach Instrument-Klasse)
-'        erfolgt im Python-Folgeprojekt, siehe: [https://github.com/yingchao-dev
-'        /Client-Order-Monitoring-Python-FollowOn/blob/main/src/execution_delay.py]
+'        Siehe geplantes Python-Modul fuer eine statistisch
+'        verfeinerte Variante mit rollierender Baseline:[https://github.com/yingchao-dev/Client-Order-Monitoring-Python-FollowOn/blob/main/src/price_deviation.py]
 ' ============================================================
 Sub MonitorExecutionDelay()
 
@@ -250,13 +244,12 @@ Sub MonitorExecutionDelay()
     Dim bondDelay As Double
     Dim spDelay As Double
     Dim orderID As Variant
-    Dim orderType As Variant
     Dim instrumentType As Variant
     Set dict = CreateObject("Scripting.Dictionary")
     dict.Add "ETF", 20
-    dict.Add "Equity", 70
-    dict.Add "Bond", 150
-    dict.Add "Structured Product", 250
+dict.Add "Equity", 70
+dict.Add "Bond", 150
+dict.Add "Structured Product", 250
     
     etfDelay = dict("ETF")
     equityDelay = dict("Equity")
@@ -270,10 +263,9 @@ Sub MonitorExecutionDelay()
         time = wsCleaned.Cells(i, 3).Value
         executionTime = wsCleaned.Cells(i, 19).Value
         instrumentType = wsCleaned.Cells(i, 14).Value
-        orderType = wsCleaned.Cells(i, 6).Value
         
         If UCase(status) = "EXECUTED" Or UCase(status) = "PARTIALLY EXECUTED" Then
-            If Not IsEmpty(time) And Not IsEmpty(executionTime) And orderType = "Market Order" Then
+            If Not IsEmpty(time) And Not IsEmpty(executionTime) Then
                 delay = DateDiff("s", time, executionTime)
                 If instrumentType = "ETF" And delay > etfDelay Then
                    DelayIssue wsMonitor, monitorRow, orderID, isin, instrumentType, time, executionTime, delay, "Delay > " & etfDelay
@@ -289,6 +281,7 @@ Sub MonitorExecutionDelay()
                 End If
              End If
         End If
+            
      Next i
             
     wsMonitor.Columns.AutoFit
@@ -302,12 +295,7 @@ End Sub
 ' Input: Cleaned_Data (Spalte ClientID, Quantity)
 ' Output: Neues Sheet "Order_Quantity_Spike_Monitoring"
 ' Bekannte Einschraenkung: Feste Multiple-Schwelle (3x), keine
-'        dynamische/rollierende Baseline. Methodisch aehnlich zur
-'        Preisabweichungspruefung (Layer��/MonitorPriceDeviation)
-'        - eine gesonderte statistische Vertiefung wurde daher nicht
-'        separat umgesetzt; die Ueberlegungen zur dynamischen
-'        Schwellenwertmethode (siehe Python-Projekt price_deviation.py)
-'        sind uebertragbar.
+'        dynamische/rollierende Baseline.
 ' ============================================================
 Sub MonitorOrderQuantitySpike()
 
