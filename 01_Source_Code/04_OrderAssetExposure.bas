@@ -23,7 +23,7 @@ End Sub
 '         (Interior.Color = vbYellow) als visueller Hinweis auf
 '         Exposure-Ueberschreitungen.
 ' Bekannte Einschraenkung: Feste Schwellenwerte je Instrument-Klasse
-'        (ETF:200.000, Equity:70000 Bond: 150.000, Structured Product: 50.000),
+'        (ETF:200.000, Equity:700.000 Bond: 150.000, Structured Product: 50.000),
 '        keine dynamische Kalibrierung - die Schwellenwerte haengen von
 '        institutsspezifischen Risikoparametern ab, die nicht oeffentlich
 '        verfuegbar sind.

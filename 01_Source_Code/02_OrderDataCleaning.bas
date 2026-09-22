@@ -5,7 +5,7 @@ Option Explicit
 ' Zweck: Bereinigt Raw_Client_Orders zeilenweise: validiert Format
 '        und Referenzintegritaet (ISIN gegen Security_Master,
 '        ClientID gegen Client_Master), parst Preise/Mengen/
-'        Zeitstempel und prueft feld¨¹bergreifende Konsistenz
+'        Zeitstempel und prueft feldï¿½ï¿½bergreifende Konsistenz
 '        (z.B. Limit- vs. Execution Price, Status vs. Ausfuehrungsdate
 '        Zeitstempel-Reihenfolge, doppelte OrderIDs).
 ' Input: Raw_Client_Orders, Security_Master, Client_Master
@@ -46,8 +46,8 @@ Function ParsePrice(txt As Variant) As Variant
         Exit Function
     End If
 
-    If InStr(cleanTxt, "€") > 0 Then
-        cleanTxt = Replace(cleanTxt, "€", "")
+    If InStr(cleanTxt, "ï¿½") > 0 Then
+        cleanTxt = Replace(cleanTxt, "ï¿½", "")
     End If
 
     Dim lastComma As Long
@@ -399,8 +399,8 @@ Sub DataCleaning()
                 LogQualityIssue wsQuality, qualityRow, i, wsData.Cells(i, 1).Value, "Ausfuerungspreis oder(und) Ausfuerungszeit vorhanden, Status vermutlich veraltet"
                 wsCleaned.Cells(i, 11).Value = parsedExecutionPrice ' Status hat bereits die Formatpruefung bestanden und wurde in Cleaned_Data uebernommen - diese Pruefung ist ein zweiter, unabhaengiger Schritt: ein
                 wsCleaned.Cells(i, 19).Value = parsedExecuTime      ' formal gueltiger Status (z.B. "Pending") kann trotzdem im Widerspruch zu anderen Feldern derselben Zeile stehen (hier: Execution-Daten vorhanden,
-                wsCleaned.Cells(i, 8).Value = Null                  ' obwohl Status "nicht ausgefuehrt" sagt). Die Execution-Daten werden uebernommen(sie sind plausibel vorhanden£¬und manuelle Pruefung erforderlich,
-            End If                                                  ' ob der Status haengen geblieben ist), der widerspruechliche Status wird bewusst auf Null gesetzt,um Fehlinterpretation in Layer¢Ú/¢Û zu vermeiden.
+                wsCleaned.Cells(i, 8).Value = Null                  ' obwohl Status "nicht ausgefuehrt" sagt). Die Execution-Daten werden uebernommen(sie sind plausibel vorhandenï¿½ï¿½und manuelle Pruefung erforderlich,
+            End If                                                  ' ob der Status haengen geblieben ist), der widerspruechliche Status wird bewusst auf Null gesetzt,um Fehlinterpretation in Layerï¿½ï¿½/ï¿½ï¿½ zu vermeiden.
         End If
 
         If Not isOrderIDValid Then
