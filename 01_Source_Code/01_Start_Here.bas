@@ -37,7 +37,7 @@ Sub RunFullPipeline()
     
     Application.DisplayAlerts = True
     Application.ScreenUpdating = True
-    Application.Calculation = xlCalculationManual
+    Application.Calculation = xlCalculationAutomatic
     
     MsgBox "Programm erfolgreich ausgefuehrt. Neben den urspruenglichen 4 Sheets " & _
            "liegen jetzt insgesamt 14 Arbeitsblaetter vor.", vbInformation
@@ -45,13 +45,15 @@ Sub RunFullPipeline()
     
 ErrHandler:
     Application.DisplayAlerts = True
-    Application.ScreenUpdating = True             ' bei Abbruch ebenfalls zuruecksetzen, sonst bleibt Excel dauerhaft im manuellen Modus
-    Application.Calculation = xlCalculationManual  ' bei Abbruch ebenfalls zuruecksetzen, sonst bleibt der Bildschirm dauerhaft eingefroren
+    Application.ScreenUpdating = True                ' bei Abbruch ebenfalls zuruecksetzen, sonst bleibt der Bildschirm dauerhaft eingefroren
+    Application.Calculation = xlCalculationAutomatic ' bei Abbruch ebenfalls zuruecksetzen, sonst bleibt Excel dauerhaft im manuellen Modus
+    
     MsgBox "Der Ablauf wurde unterbrochen. Bitte pruefen Sie, ob alle " & _
            "erforderlichen Sheets (Raw_Client_Orders, Security_Master, " & _
            "Client_Master) vorhanden und unveraendert sind, und starten " & _
            "Sie RunFullPipeline erneut." & vbNewLine & vbNewLine & _
            "Technische Details: " & Err.Description
+           
 End Sub
 
 

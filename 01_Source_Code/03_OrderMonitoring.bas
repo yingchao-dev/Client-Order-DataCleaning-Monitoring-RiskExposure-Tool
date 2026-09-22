@@ -190,7 +190,7 @@ End Sub
 ' Zweck: Erkennt Ausfuehrungen, deren Verzoegerung zwischen
 '        Auftrags- und Ausfuehrungszeitpunkt den fuer die jeweilige
 '        Instrument-Klasse definierten Schwellenwert ueberschreitet
-'        (ETF: 10s, Equity: 20s, Bond: 60s, Structured Product: 120s).
+'        (ETF: 20s, Equity: 70s, Bond: 150s, Structured Product: 250s).
 ' Input: Cleaned_Data (Spalte Timestamp, Execution Time, Instrument Type, Status)
 ' Output: Neues Sheet "Execution_Delay_Monitoring"
 ' Bekannte Einschraenkung: Schwellenwerte sind fest und liquiditaets-
@@ -245,11 +245,12 @@ Sub MonitorExecutionDelay()
     Dim spDelay As Double
     Dim orderID As Variant
     Dim instrumentType As Variant
+    
     Set dict = CreateObject("Scripting.Dictionary")
     dict.Add "ETF", 20
-dict.Add "Equity", 70
-dict.Add "Bond", 150
-dict.Add "Structured Product", 250
+    dict.Add "Equity", 70
+    dict.Add "Bond", 150
+    dict.Add "Structured Product", 250
     
     etfDelay = dict("ETF")
     equityDelay = dict("Equity")
