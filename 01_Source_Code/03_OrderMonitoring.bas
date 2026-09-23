@@ -198,7 +198,7 @@ End Sub
 '        Ausfuehrungsverzoegerungsdaten sind interne Informationen
 '        des jeweiligen Instituts und daher nicht zugaenglich.
 '        Siehe geplantes Python-Modul fuer eine statistisch
-'        verfeinerte Variante mit rollierender Baseline:[https://github.com/yingchao-dev/Client-Order-Monitoring-Python-FollowOn/blob/main/src/price_deviation.py]
+'        verfeinerte Variante mit rollierender Baseline:[https://github.com/yingchao-dev/Client-Order-Monitoring-Python-FollowOn/blob/main/src/execution_delay.py]
 ' ============================================================
 Sub MonitorExecutionDelay()
 
@@ -244,6 +244,7 @@ Sub MonitorExecutionDelay()
     Dim bondDelay As Double
     Dim spDelay As Double
     Dim orderID As Variant
+    Dim marketType As Variant
     Dim instrumentType As Variant
     
     Set dict = CreateObject("Scripting.Dictionary")
@@ -264,9 +265,10 @@ Sub MonitorExecutionDelay()
         time = wsCleaned.Cells(i, 3).Value
         executionTime = wsCleaned.Cells(i, 19).Value
         instrumentType = wsCleaned.Cells(i, 14).Value
+        marketType = wsCleaned.Cells(i, 6).Value
         
         If UCase(status) = "EXECUTED" Or UCase(status) = "PARTIALLY EXECUTED" Then
-            If Not IsEmpty(time) And Not IsEmpty(executionTime) Then
+            If Not IsEmpty(time) And Not IsEmpty(executionTime) And marketType = "Market Order" Then
                 delay = DateDiff("s", time, executionTime)
                 If instrumentType = "ETF" And delay > etfDelay Then
                    DelayIssue wsMonitor, monitorRow, orderID, isin, instrumentType, time, executionTime, delay, "Delay > " & etfDelay
