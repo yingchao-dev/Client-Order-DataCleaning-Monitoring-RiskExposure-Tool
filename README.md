@@ -20,7 +20,7 @@ Regelbasierte Erkennung auffaelliger Einzelauftraege (offene Pending-Orders, Pre
 Aggregation von Net-/Gross-Exposure auf Ebene Einzelwert (ISIN) und Instrument-Klasse, inkl. Umrechnung von Bond-Kursen (Prozent vom Nominalwert); zusaetzlich Erkennung von Einzelgeschaeften ueber Grossauftrags-Schwellenwerten (Notional Value).
 
 ### ④ Output
-Aufbau eines Summary-Sheets (BuildSummary) mit Anzahl auffaelliger Orders je Kategorie (dedupliziert ueber die vier Monitoring-Sheets), konzernweitem Gross Exposure (aus Layer③ uebernommen, nicht neu berechnet), Top-3-Kunden nach Volumen und Auffaelligkeitsrate je Asset-Klasse (auffaellig/gesamt).
+Aufbau eines Summary-Sheets (BuildSummary) mit Anzahl auffaelliger Orders je Kategorie (dedupliziert ueber die vier Monitoring-Sheets), Gesamt-Gross-Exposure (aus Layer③ uebernommen, nicht neu berechnet), Top-3-Kunden nach Volumen und Auffaelligkeitsrate je Asset-Klasse (auffaellig/gesamt).
 
 ### ⑤ Start_Here
 Zentraler Einstiegspunkt (RunFullPipeline), der alle Sub-Prozeduren aus Layer①-④ in der richtigen Reihenfolge aufruft; Zusammenfassung bei Erfolg, Hinweismeldung mit moeglicher Ursache bei Abbruch.
@@ -29,7 +29,7 @@ Zentraler Einstiegspunkt (RunFullPipeline), der alle Sub-Prozeduren aus Layer①
 
 ## Datensatz-Hintergrund
 
-- **Datenherkunft:** Der im Projekt verwendete Datensatz (Raw_Client_Orders, Security_Master, Client_Master) wurde vollstaendig mittels KI generiert und simuliert. Es handelt sich um keine echten Kunden- oder Handelsdaten; es bestehen daher keine Datenschutz- oder Compliance-Bedenken. Der Datensatz wurde bewusst mit realistischen Datenqualitaetsproblemen versehen (fehlerhafte Formate, unguelte Referenzen, widerspruechliche Zeitstempel etc.), um die Cleaning- und Validierungslogik gezielt zu testen.
+- **Datenherkunft:** Der im Projekt verwendete Datensatz (Raw_Client_Orders, Security_Master, Client_Master) wurde vollstaendig mittels KI generiert und simuliert. Es handelt sich um keine echten Kunden- oder Handelsdaten; es bestehen daher keine Datenschutz- oder Compliance-Bedenken. Der Datensatz wurde bewusst mit realistischen Datenqualitaetsproblemen versehen (fehlerhafte Formate, ungueltige Referenzen, widerspruechliche Zeitstempel etc.), um die Cleaning- und Validierungslogik gezielt zu testen.
 - Raw_Client_Orders wird als untrusted Quelle behandelt und nicht manuell vorab bereinigt; alle Korrekturen laufen ueber die Cleaning-Logik in Layer①.
 - Security_Master und Client_Master werden als vertrauenswuerdige Stammdaten behandelt und nicht bereinigt; das Cleaning beschraenkt sich ausschliesslich auf Raw_Client_Orders. Diese Annahme ist in der Praxis plausibel, da Stammdaten typischerweise durch einen separaten, staerker kontrollierten Prozess gepflegt werden.
 - Da diese Datei ueber das Internet heruntergeladen wurde, blockiert Windows moeglicherweise standardmaessig die Makroausfuehrung. Nach dem Download: Rechtsklick auf die Datei → Eigenschaften → im Reiter "Allgemein" unten die Option "Blockierung aufheben" aktivieren → Uebernehmen und OK. Anschliessend beim Oeffnen in Excel "Inhalt aktivieren" waehlen.
